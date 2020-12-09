@@ -1,3 +1,5 @@
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +23,65 @@ class MusicApp extends StatefulWidget {
 }
 
 class _MusicAppState extends State<MusicApp> {
+  /// for playing music or push
+  bool playing = false;
+
+  /// the main state of the play button
+  // IconData playBtn = Icons.play_arrow;
+  IconData playBtn = Icons.play_arrow;
+
+  AudioPlayer _player;
+  AudioCache cache;
+
+  Duration position = new Duration();
+  Duration musicLength = new Duration();
+
+  /// slider widget
+  Widget slider() {
+    return Container(
+      width: 270,
+      child: Slider.adaptive(
+          activeColor: Colors.blue[800],
+          inactiveColor: Colors.grey[350],
+          value: position.inSeconds.toDouble(),
+          max: musicLength.inSeconds.toDouble(),
+          onChanged: (value) {
+            seekToSec(value.toInt());
+          }),
+    );
+  }
+
+  /// seek function
+  void seekToSec(int sec) {
+    Duration newPos = Duration(seconds: sec);
+    _player.seek(newPos);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _player = AudioPlayer();
+    cache = AudioCache(fixedPlayer: _player);
+
+    /// this function will allow us to get duration
+    _player.durationHandler = (d) {
+      setState(() {
+        musicLength = d;
+      });
+    };
+
+    /// This function allow us to move the cursor of the slider
+    _player.positionHandler = (p) {
+      setState(() {
+        position = p;
+      });
+
+      /// load file song to make playing song
+      cache.load("music.mp3");
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +168,24 @@ class _MusicAppState extends State<MusicApp> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Container(
+                          width: 500,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "${position.inMinutes}:${position.inSeconds.remainder(60)}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              slider(),
+                              Text(
+                                "${musicLength.inMinutes}:${musicLength.inSeconds.remainder(60)}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,19 +193,40 @@ class _MusicAppState extends State<MusicApp> {
                             IconButton(
                               iconSize: 45,
                               color: Colors.blue[800],
-                              onPressed: () {},
+                              onPressed: () {
+                                // here function skip previous
+                              },
                               icon: Icon(Icons.skip_previous),
                             ),
                             IconButton(
                               iconSize: 60,
                               color: Colors.blue[800],
-                              onPressed: () {},
-                              icon: Icon(Icons.play_arrow),
+                              onPressed: () {
+                                /// here function play and pause
+                                if (!playing) {
+                                  cache.play("music.mp3");
+                                  setState(() {
+                                    playBtn = Icons.pause;
+                                    playing = true;
+                                  });
+                                } else {
+                                  setState(() {
+                                    _player.pause();
+                                    playBtn = Icons.play_arrow;
+                                    playing = false;
+                                  });
+                                }
+                              },
+                              // icon: Icon(Icons.play_arrow),
+                              icon: Icon(playBtn),
                             ),
                             IconButton(
                               iconSize: 45,
                               color: Colors.blue[800],
-                              onPressed: () {},
+                              onPressed: () {
+                                // here function skip next
+                                playBtn;
+                              },
                               icon: Icon(Icons.skip_next),
                             ),
                           ],

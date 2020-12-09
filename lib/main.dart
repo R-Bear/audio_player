@@ -46,7 +46,7 @@ class _MusicAppState extends State<MusicApp> {
                 Padding(
                   padding: const EdgeInsets.only(left: 12),
                   child: Text(
-                    "Music Beats",
+                    "Music player",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 40,
@@ -83,7 +83,7 @@ class _MusicAppState extends State<MusicApp> {
                 ),
                 Center(
                   child: Text(
-                    "Stargazer",
+                    "Khmeng Khmer",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
